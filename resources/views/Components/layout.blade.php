@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray=100"></html>
+<html lang="en" class="h-full bg-gray-100">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,6 +19,7 @@
                     <div class="hidden md:block">
                         <div class="ml-10 flex items-baseline space-x-4">
                             <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-white/5 hover:text-white" -->
+                        @auth
                             <x-nav-link href="/">Manhwas</x-nav-link>
                             <x-nav-link href="#" >My Collection</x-nav-link>
                             <button
@@ -27,6 +28,7 @@
                             >
                                 + Add Manhwa
                             </button>
+                        @endauth
                         </div>
                     </div>
                 </div>
@@ -92,10 +94,9 @@
     <header class="relative bg-white shadow-sm">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 sm:flex sm:justify-between">
             <h1 class="text-3xl font-bold tracking-tight text-gray-900">{{ $heading }}</h1>
-
-            <x-button href="#">LOG</x-button>
         </div>
     </header>
+
     <main>
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             {{ $slot }}
@@ -103,6 +104,7 @@
     </main>
 </div>
 
+@auth
 <div
     x-show="addManhwaModal"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -112,16 +114,85 @@
         <h2 class="text-xl font-bold mb-4">Add Manhwa</h2>
 
         <!-- FORM WILL GO HERE -->
+        <form action="/manhwas" method="POST" enctype="multipart/form-data">
+            @csrf
 
-        <button
-            @click="addManhwaModal = false"
-            class="mt-4 px-4 py-2 bg-gray-300 rounded"
-        >
-            Close
-        </button>
+            <x-form-field>
+                <x-form-label for="cover_image"> Cover Image </x-form-label>
+                <x-form-file name="cover_image" />
+                <x-form-error name ="cover_image" />
+            </x-form-field>
+
+            <x-form-field>
+                <x-form-label for="title"> Title </x-form-label>
+                <x-form-input
+                    name="title" id="title" type="text" required />
+                <x-form-error name="title" />
+            </x-form-field>
+
+            <x-form-field>
+                <x-form-label for="author"> Author </x-form-label>
+                <x-form-input
+                    name="author" id="author" type="text" required />
+                <x-form-error name="author" />
+            </x-form-field>
+
+            <x-form-field>
+                <x-form-label for="description"> Description </x-form-label>
+                <x-form-input
+                    name="description" id="description" type="text" required />
+                <x-form-error name="description" />
+            </x-form-field>
+
+            <x-form-field>
+                <x-form-label for="published_at"> Published At </x-form-label>
+                <x-form-input
+                    name="published_at" id="published_at" type="date" required />
+                <x-form-error name="published_at" />
+            </x-form-field>
+
+            <x-form-field>
+                <x-form-label for="status"> Status</x-form-label>
+                <x-form-select name="status" id="status" required>
+                    <option value="">Select a status</option>
+                    <option value="ongoing">Ongoing</option>
+                    <option value="finished">Finished</option>
+                </x-form-select>
+                <x-form-error name="status" />
+            </x-form-field>
+
+            <x-form-field>
+                <x-form-label>Genre</x-form-label>
+
+                @if(isset($genres))
+                    <x-form-multiselect
+                        name="genres"
+                        :options="$genres"
+                    />
+                @endif
+            </x-form-field>
+
+
+            <div class="flex justify-between mt-6">
+                <button
+                    @click="addManhwaModal = false"
+                    type="button"
+                    class="px-4 py-2 bg-gray-300 rounded"
+                >
+                    Close
+                </button>
+
+                <x-form-button>
+                    Save
+                </x-form-button>
+            </div>
+
+        </form>
+
     </div>
-</div>
 
+</div>
+@endauth
 
 </body>
 </html>

@@ -1,7 +1,13 @@
-<x-layout>
+
+<x-layout :genres="$genres">
 
     <x-slot:heading>
-        Welcome to Manhwa Page WOOOHOOO
+        MANHWABANG
     </x-slot:heading>
+
+    @foreach($manhwas as $manhwa)
+        <h1> {{ $manhwa->title }}</h1>
+    @endforeach
+
 </x-layout>
 
