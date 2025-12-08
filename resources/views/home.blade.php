@@ -1,12 +1,9 @@
+<x-layout>
 
-<x-layout :genres="$genres">
-
-    <x-slot:heading>
-        MANHWABANG
-    </x-slot:heading>
+    <x-slot:heading> MANHWABANG </x-slot:heading>
 
     @foreach($manhwas as $manhwa)
-        <h1> {{ $manhwa->title }}</h1>
+    <x-manhwa-card :manhwa="$manhwa"/>
     @endforeach
 
 </x-layout>
