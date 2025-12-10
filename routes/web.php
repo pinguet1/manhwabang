@@ -10,6 +10,8 @@ Route::get('/', [\App\Http\Controllers\HomeController::class, 'index']);
 
 Route::post('/manhwas', [\App\Http\Controllers\ManhwaController::class, 'store']);
 
+Route::get('/manhwa/{manhwa}', [ManhwaController::class, 'show']);
+
 Route::get('/register',[RegisteredUserController::class, 'create']);
 Route::post('/register', [RegisteredUserController::class, 'store']);
 

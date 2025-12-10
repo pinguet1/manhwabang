@@ -16,9 +16,9 @@ class ManhwaController extends Controller
             ]);
     }
 
-    public function create()
+    public function show(Manhwa $manhwa)
     {
-
+        return view('Manhwas.show', ['manhwa' => $manhwa]);
     }
 
     public function store()

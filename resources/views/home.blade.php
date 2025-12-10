@@ -3,7 +3,9 @@
     <x-slot:heading> MANHWABANG </x-slot:heading>
 
     @foreach($manhwas as $manhwa)
-    <x-manhwa-card :manhwa="$manhwa"/>
+        <a href="/manhwa/{{ $manhwa['id'] }}">
+            <x-manhwa-card :manhwa="$manhwa"/>
+        </a>
     @endforeach
 
 </x-layout>
