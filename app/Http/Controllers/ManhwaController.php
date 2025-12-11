@@ -12,7 +12,8 @@ class ManhwaController extends Controller
     {
         return view('home',
             [ 'genres' => Genre::all(),
-            'manhwas' => Manhwa::with('genre')->get()
+            'manhwas' => Manhwa::with('genre')->get(),
+                'manhwa' => Manhwa::with('thoughts')->get(),
             ]);
     }
 

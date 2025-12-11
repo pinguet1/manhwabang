@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
-<body x-data="{ addManhwaModal: false }" class="h-full">
+<body x-data="{ addManhwaModal: false, addReviewModal: false }" class="h-full">
 <div class="min-h-full">
     <nav class="bg-gray-800">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -27,6 +27,12 @@
                                 class="text-gray-300 hover:bg-white/5 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                             >
                                 + Add Manhwa
+                            </button>
+                            <button
+                                @click="addReviewModal = true"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                            >
+                                Thoughts?
                             </button>
                         @endauth
                         </div>
@@ -193,6 +199,179 @@
 
 </div>
 @endauth
+
+<div
+    x-show="addReviewModal"
+    x-cloak
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    @click.self="addReviewModal = false"
+>
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-xl max-h-[90vh] overflow-y-auto">
+
+        <h2 class="text-xl font-bold mb-4">Share Your Thoughts</h2>
+
+        <!-- REVIEW FORM -->
+        <form action="{{route('thoughts.store')}}" method="POST">
+            @csrf
+
+            <!-- Searchable Manhwa Select -->
+            <x-form-field>
+                <x-form-label for="manhwa_id">Manhwa <span class="text-red-500">*</span></x-form-label>
+
+                <div x-data="{
+                    search: '',
+                    open: false,
+                    selected: null,
+                    manhwas: @js($manhwas ?? []),
+                    get filteredManhwas() {
+                        if (this.search === '') return this.manhwas;
+                        return this.manhwas.filter(m =>
+                            m.title.toLowerCase().includes(this.search.toLowerCase())
+                        );
+                    }
+                }"
+                     class="relative"
+                     @click.away="open = false"
+                >
+                    <!-- Search Input -->
+                    <input
+                        type="text"
+                        x-model="search"
+                        @focus="open = true"
+                        @input="open = true"
+                        placeholder="Search for a manhwa..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+
+                    <!-- Hidden input for form submission -->
+                    <input type="hidden" name="manhwa_id" x-model="selected" required>
+
+                    <!-- Dropdown List -->
+                    <div
+                        x-show="open && filteredManhwas.length > 0"
+                        class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                    >
+                        <template x-for="manhwa in filteredManhwas" :key="manhwa.id">
+                            <button
+                                type="button"
+                                @click="selected = manhwa.id; search = manhwa.title; open = false"
+                                class="w-full px-4 py-3 text-left hover:bg-blue-50 border-b border-gray-100 last:border-b-0 flex items-center gap-3"
+                                :class="{ 'bg-blue-100': selected === manhwa.id }"
+                            >
+                                <!-- Manhwa Cover Thumbnail -->
+                                <img
+                                    :src="'/storage/' + manhwa.cover_image"
+                                    :alt="manhwa.title"
+                                    class="w-10 h-14 object-cover rounded"
+                                />
+
+                                <!-- Manhwa Info -->
+                                <div class="flex-1">
+                                    <div class="font-semibold text-gray-800" x-text="manhwa.title"></div>
+                                    <div class="text-sm text-gray-500" x-text="manhwa.author"></div>
+                                </div>
+                            </button>
+                        </template>
+                    </div>
+
+                    <!-- No results message -->
+                    <div
+                        x-show="open && filteredManhwas.length === 0 && search !== ''"
+                        class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4 text-center text-gray-500"
+                    >
+                        No manhwa found matching "<span x-text="search"></span>"
+                    </div>
+                </div>
+
+                <x-form-error name="manhwa_id" />
+            </x-form-field>
+
+            <!-- Rating Section -->
+            <x-form-field>
+                <x-form-label>Rating <span class="text-red-500">*</span></x-form-label>
+
+                <div x-data="{ rating: 0, hoverRating: 0 }">
+                    <!-- Star Rating -->
+                    <div class="flex items-center gap-2 mb-2">
+                        <template x-for="star in 10" :key="star">
+                            <button
+                                type="button"
+                                @click="rating = star"
+                                @mouseenter="hoverRating = star"
+                                @mouseleave="hoverRating = 0"
+                                class="text-3xl transition-all transform hover:scale-110 focus:outline-none"
+                                :class="star <= (hoverRating || rating) ? 'text-yellow-400' : 'text-gray-300'"
+                            >
+                                ★
+                            </button>
+                        </template>
+                    </div>
+
+                    <!-- Rating Display -->
+                    <div
+                        class="text-sm font-semibold text-gray-700"
+                        x-show="rating > 0"
+                    >
+                        <span x-text="rating"></span> out of 10 stars
+                    </div>
+
+                    <!-- Hidden input for rating -->
+                    <input type="hidden" name="rating" x-model="rating" required>
+                </div>
+
+                <x-form-error name="rating" />
+            </x-form-field>
+
+            <!-- Review Text -->
+            <x-form-field>
+                <x-form-label for="review">Your Review <span class="text-red-500">*</span></x-form-label>
+                <textarea
+                    name="review"
+                    id="review"
+                    rows="6"
+                    required
+                    placeholder="Share your thoughts... What did you love? What could be better?"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                ></textarea>
+                <p class="text-gray-500 text-xs mt-1">Minimum 10 characters</p>
+                <x-form-error name="review" />
+            </x-form-field>
+
+            <!-- Spoiler Warning Checkbox -->
+            <x-form-field>
+                <div class="flex items-center">
+                    <input
+                        type="checkbox"
+                        name="is_spoiler"
+                        id="is_spoiler"
+                        value="1"
+                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    >
+                    <label for="is_spoiler" class="ml-2 text-gray-700">
+                        This review contains spoilers
+                    </label>
+                </div>
+            </x-form-field>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-between mt-6">
+                <button
+                    @click="addReviewModal = false"
+                    type="button"
+                    class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+                >
+                    Cancel
+                </button>
+
+                <x-form-button>
+                    Submit Review
+                </x-form-button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
 
 </body>
 </html>

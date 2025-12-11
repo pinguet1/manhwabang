@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('thoughts', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('manhwa_id')->constrained('manhwas');
-            $table->string('reviews');
-            $table->boolean('is_spoiler');
-            $table->integer('helpful_count');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('manhwa_id')->constrained('manhwas')->onDelete('cascade');
+            $table->text('review');
+            $table->integer('rating');
+            $table->boolean('is_spoiler')->default(false);
+            $table->integer('helpful_count')->default(0);
         });
     }
 

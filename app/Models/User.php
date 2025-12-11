@@ -46,4 +46,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function thoughts()
+    {
+        return $this->hasMany('App\Models\Thought');
+    }
 }

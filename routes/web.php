@@ -12,6 +12,10 @@ Route::post('/manhwas', [\App\Http\Controllers\ManhwaController::class, 'store']
 
 Route::get('/manhwa/{manhwa}', [ManhwaController::class, 'show']);
 
+Route::post('/thoughts', [\App\Http\Controllers\ThoughtController::class, 'store'])
+->middleware('auth')
+    ->name('thoughts.store');
+
 Route::get('/register',[RegisteredUserController::class, 'create']);
 Route::post('/register', [RegisteredUserController::class, 'store']);
 

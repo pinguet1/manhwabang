@@ -23,4 +23,8 @@ class Manhwa extends Model
 
     }
 
+    public function thoughts()
+    {
+        return $this->hasMany(Thought::class);
+    }
 }
